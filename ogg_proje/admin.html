@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <title>Admin Sayfası</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 30px; }
+    input, button { font-size: 16px; margin: 10px 0; padding: 6px; }
+    table { border-collapse: collapse; width: 100%; margin: 30px 0; }
+    th, td { border: 1px solid #ccc; padding: 8px; }
+    th { background-color: #eee; }
+    #admin-panel { display: none; }
+  </style>
+</head>
+<body>
+  <h1>Admin Girişi</h1>
+  <div id="login-area">
+    <label>Admin Kodu:</label>
+    <input type="password" id="admin-code">
+    <button onclick="checkAdmin()">Giriş Yap</button>
+  </div>
+
+  <div id="admin-panel">
+    <h2>Tüm Kadın Kayıtları</h2>
+    <div id="female-output"></div>
+
+    <h2>Tüm Erkek Kayıtları</h2>
+    <div id="male-output"></div>
+
+    <h2>Genel Sıralama (Tüm Şehirler)</h2>
+    <div id="all-output"></div>
+  </div>
+
+  <script>
+    const ADMIN_PASSWORD = "1907" //xcvccvlcxzn ğoDkamokad- 0ıD ifreni yaz
+
+    function checkAdmin() {
+      const input = document.getElementById("admin-code").value;
+      if (input === ADMIN_PASSWORD) {
+        document.getElementById("login-area").style.display = "none";
+        document.getElementById("admin-panel").style.display = "block";
+        loadData();
+      } else {
+        alert("Hatalı admin kodu!");
+      }
+    }
+
+    function renderTable(data, containerId) {
+      const grouped = {};
+
+      data.forEach(entry => {
+        if (!grouped[entry.city]) grouped[entry.city] = [];
+        grouped[entry.city].push(entry);
+      });
+
+      const output = document.getElementById(containerId);
+      for (const city in grouped) {
+        const sorted = grouped[city].sort((a, b) =>
+          parseFloat(b.score.replace(",", ".")) - parseFloat(a.score.replace(",", "."))
+        );
+
+        let html = `<h3>${city}</h3>
+        <table>
+          <tr>
+            <th>#</th>
+            <th>Ad</th>
+            <th>Puan</th>
+          </tr>`;
+
+        sorted.forEach((entry, i) => {
+          html += `
+            <tr>
+              <td>${i + 1}</td>
+              <td>${entry.username}</td>
+              <td>${entry.score}</td>
+            </tr>
+          `;
+        });
+
+        html += `</table>`;
+        output.innerHTML += html;
+      }
+    }
+
+    function renderAll(data, containerId) {
+      const sorted = data.sort((a, b) =>
+        parseFloat(b.score.replace(",", ".")) - parseFloat(a.score.replace(",", "."))
+      );
+
+      const output = document.getElementById(containerId);
+      let html = `
+        <table>
+          <tr>
+            <th>#</th>
+            <th>Ad</th>
+            <th>Cinsiyet</th>
+            <th>Şehir</th>
+            <th>Puan</th>
+          </tr>
+      `;
+
+      sorted.forEach((entry, i) => {
+        html += `
+          <tr>
+            <td>${i + 1}</td>
+            <td>${entry.username}</td>
+            <td>${entry.gender}</td>
+            <td>${entry.city}</td>
+            <td>${entry.score}</td>
+          </tr>
+        `;
+      });
+
+      html += `</table>`;
+      output.innerHTML = html;
+    }
+
+    function loadData() {
+      const female = JSON.parse(localStorage.getItem("femaleScores")) || [];
+      const male = JSON.parse(localStorage.getItem("maleScores")) || [];
+
+      // gender bilgisini eksikse ekle
+      female.forEach(e => e.gender = "Kadın");
+      male.forEach(e => e.gender = "Erkek");
+
+      renderTable(female, "female-output");
+      renderTable(male, "male-output");
+
+      const all = [...female, ...male];
+      renderAll(all, "all-output");
+    }
+  </script>
+</body>
+</html>

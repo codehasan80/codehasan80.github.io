@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <title>Puan Girişi ve Sıralama</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&display=swap');
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      background: #f4f7fa;
+      font-family: 'Montserrat', sans-serif;
+      margin: 0;
+      padding: 40px 20px;
+      color: #333;
+      display: flex;
+      justify-content: center;
+      min-height: 100vh;
+    }
+
+    .container {
+      background: white;
+      max-width: 480px;
+      width: 100%;
+      padding: 30px 35px;
+      border-radius: 10px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+    }
+
+    h1 {
+      margin-top: 0;
+      font-weight: 600;
+      text-align: center;
+      color: #2a2f4a;
+    }
+
+    label {
+      display: block;
+      margin: 18px 0 6px 0;
+      font-weight: 600;
+      font-size: 15px;
+      color: #4a4a6a;
+    }
+
+    input[type="text"],
+    select {
+      width: 100%;
+      padding: 12px 14px;
+      border-radius: 6px;
+      border: 1.8px solid #cbd3db;
+      font-size: 16px;
+      transition: border-color 0.3s;
+    }
+
+    input[type="text"]:focus,
+    select:focus {
+      border-color: #4a90e2;
+      outline: none;
+    }
+
+    button {
+      margin-top: 28px;
+      width: 100%;
+      background-color: #4a90e2;
+      color: white;
+      border: none;
+      padding: 15px 0;
+      font-size: 18px;
+      font-weight: 600;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+    button:hover {
+      background-color: #357ABD;
+    }
+
+    #retry-btn {
+      margin-top: 15px;
+      background-color: #e0e0e0;
+      color: #555;
+      border: 1.5px solid #ccc;
+      font-weight: 600;
+      display: none;
+      cursor: pointer;
+    }
+    #retry-btn:hover {
+      background-color: #ccc;
+    }
+
+    #result-area {
+      margin-top: 30px;
+      padding: 20px;
+      background: #eef3fb;
+      border-radius: 8px;
+      font-size: 16px;
+      color: #2a2f4a;
+      line-height: 1.5;
+      display: none;
+    }
+
+    @media (max-width: 540px) {
+      .container {
+        padding: 25px 20px;
+      }
+      button {
+        font-size: 16px;
+        padding: 12px 0;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Puan ve Şehir Girişi</h1>
+
+    <div id="form-area">
+      <label for="username">Kullanıcı Adı</label>
+      <input type="text" id="username" placeholder="Adınızı girin" required autocomplete="off" />
+
+      <label for="gender">Cinsiyet</label>
+      <select id="gender" required>
+        <option value="">-- Seçiniz --</option>
+        <option value="Kadın">Kadın</option>
+        <option value="Erkek">Erkek</option>
+      </select>
+
+      <label for="education">Eğitim Durumu</label>
+      <select id="education" required>
+        <option value="">-- Seçiniz --</option>
+        <option value="Lise">Lise</option>
+        <option value="Önlisans">Önlisans</option>
+        <option value="Lisans">Lisans</option>
+      </select>
+
+      <label for="score">Puan (örnek: 12,34567)</label>
+      <input type="text" id="score" placeholder="12,34567" required autocomplete="off" />
+
+      <label for="city">Şehir Seçin</label>
+      <select id="city" required>
+        <option value="">-- Şehir Seçin --</option>
+      </select>
+
+      <!-- ✅ Burada onclick kaldırıldı -->
+      <button id="save-btn">Kaydet ve Listele</button>
+    </div>
+
+    <button id="retry-btn">Başka arkadaşım için kayıt yapacağım</button>
+
+    <div id="result-area"></div>
+  </div>
+
+  <script>
+    const cities = [
+      "Adana","Adıyaman","Afyonkarahisar","Ağrı","Amasya","Ankara","Antalya","Artvin","Aydın","Balıkesir",
+      "Bilecik","Bingöl","Bitlis","Bolu","Burdur","Bursa","Çanakkale","Çankırı","Çorum","Denizli","Diyarbakır",
+      "Edirne","Elazığ","Erzincan","Erzurum","Eskişehir","Gaziantep","Giresun","Gümüşhane","Hakkari","Hatay",
+      "Isparta","Mersin","İstanbul","İzmir","Kars","Kastamonu","Kayseri","Kırklareli","Kırşehir","Kocaeli",
+      "Konya","Kütahya","Malatya","Manisa","Kahramanmaraş","Mardin","Muğla","Muş","Nevşehir","Niğde","Ordu",
+      "Rize","Sakarya","Samsun","Siirt","Sinop","Sivas","Tekirdağ","Tokat","Trabzon","Tunceli","Şanlıurfa",
+      "Uşak","Van","Yozgat","Zonguldak","Aksaray","Bayburt","Karaman","Kırıkkale","Batman","Şırnak","Bartın",
+      "Ardahan","Iğdır","Yalova","Karabük","Kilis","Osmaniye","Düzce"
+    ];
+
+    const citySelect = document.getElementById("city");
+    const retryButton = document.getElementById("retry-btn");
+    const formArea = document.getElementById("form-area");
+    const saveBtn = document.getElementById("save-btn");
+    const resultArea = document.getElementById("result-area");
+
+    function populateCities() {
+      cities.forEach(city => {
+        const option = document.createElement("option");
+        option.value = city;
+        option.textContent = city;
+        citySelect.appendChild(option);
+      });
+    }
+    populateCities();
+
+    function hasUserSubmitted() {
+      return localStorage.getItem("hasSubmitted") === "true";
+    }
+
+    function toggleForm() {
+      if (hasUserSubmitted()) {
+        formArea.style.display = "none";
+        retryButton.style.display = "block";
+        resultArea.style.display = "none";
+      } else {
+        formArea.style.display = "block";
+        retryButton.style.display = "none";
+        resultArea.style.display = "none";
+      }
+    }
+
+    retryButton.addEventListener("click", () => {
+      localStorage.clear();
+      formArea.style.display = "block";
+      retryButton.style.display = "none";
+      resultArea.style.display = "none";
+
+      document.getElementById("username").value = "";
+      document.getElementById("gender").value = "";
+      document.getElementById("education").value = "";
+      document.getElementById("score").value = "";
+      document.getElementById("city").value = "";
+    });
+
+    function saveData() {
+      const username = document.getElementById("username").value.trim();
+      const gender = document.getElementById("gender").value;
+      const educationInput = document.getElementById("education").value;
+      const scoreInput = document.getElementById("score").value.trim();
+      const cityInput = document.getElementById("city").value;
+
+      const regex = /^\d{1,2},\d{1,5}$/;
+
+      if (!username) {
+        alert("Lütfen adınızı girin.");
+        return;
+      }
+
+      if (!gender) {
+        alert("Lütfen cinsiyet seçin.");
+        return;
+      }
+
+      if (!educationInput) {
+        alert("Lütfen eğitim durumunuzu seçin.");
+        return;
+      }
+
+      if (educationInput !== "Önlisans") {
+        alert("Sadece Önlisans mezunları kayıt yapabilir.");
+        return;
+      }
+
+      if (!regex.test(scoreInput)) {
+        alert("Lütfen puanı doğru formatta girin: örnek 12,34567");
+        return;
+      }
+
+      if (!cityInput) {
+        alert("Lütfen bir şehir seçin.");
+        return;
+      }
+
+      const storageKey = gender === "Kadın" ? "femaleScores" : "maleScores";
+      const existingData = JSON.parse(localStorage.getItem(storageKey)) || [];
+
+      const userHasSubmitted = existingData.some(entry => entry.username.toLowerCase() === username.toLowerCase());
+      if (userHasSubmitted) {
+        alert("Daha önce puan girişi yaptınız. Başka arkadaşınız için kayıt yapmak için 'Başka arkadaşım için kayıt yapacağım' butonuna basın.");
+        return;
+      }
+
+      const newEntry = {
+        username: username,
+        city: cityInput,
+        score: scoreInput,
+        scoreNum: parseFloat(scoreInput.replace(",", "."))
+      };
+
+      existingData.push(newEntry);
+      localStorage.setItem(storageKey, JSON.stringify(existingData));
+
+      localStorage.setItem("lastGender", gender);
+      localStorage.setItem("lastCity", cityInput);
+      localStorage.setItem("lastScore", scoreInput);
+      localStorage.setItem("lastUsername", username);
+      localStorage.setItem("hasSubmitted", "true");
+
+      // Formu gizle, sonuç göster
+      formArea.style.display = "none";
+      retryButton.style.display = "block";
+      showLastResult();
+    }
+
+    function parseScore(scoreStr) {
+      return parseFloat(scoreStr.replace(',', '.'));
+    }
+
+    function calculateRank(arr, username) {
+      arr.sort((a, b) => {
+        if (b.scoreNum !== a.scoreNum) return b.scoreNum - a.scoreNum;
+        return a.username.localeCompare(b.username);
+      });
+
+      for (let i = 0; i < arr.length; i++) {
+        if (arr[i].username.toLowerCase() === username.toLowerCase()) {
+          return i + 1;
+        }
+      }
+      return -1;
+    }
+
+    function showLastResult() {
+      const lastGender = localStorage.getItem("lastGender");
+      const lastCity = localStorage.getItem("lastCity");
+      const lastScoreStr = localStorage.getItem("lastScore");
+      const lastUsername = localStorage.getItem("lastUsername");
+
+      if (!lastGender || !lastCity || !lastScoreStr || !lastUsername) {
+        resultArea.style.display = "none";
+        return;
+      }
+
+      const storageKey = lastGender === "Kadın" ? "femaleScores" : "maleScores";
+      const data = JSON.parse(localStorage.getItem(storageKey)) || [];
+
+      const dataWithScoreNum = data.map(item => ({
+        ...item,
+        scoreNum: parseScore(item.score)
+      }));
+
+      const genelRank = calculateRank(dataWithScoreNum, lastUsername);
+      const cityFiltered = dataWithScoreNum.filter(item => item.city === lastCity);
+      const cityRank = calculateRank(cityFiltered, lastUsername);
+
+      resultArea.innerHTML = `
+        <h2>Sonuçlar</h2>
+        <p><strong>${lastUsername}</strong> isimli kullanıcı için:</p>
+        <ul>
+          <li><strong>Cinsiyetine göre genel sıralama:</strong> ${genelRank} / ${data.length}</li>
+          <li><strong>${lastCity} şehrindeki sıralama:</strong> ${cityRank} / ${cityFiltered.length}</li>
+        </ul>
+      `;
+      resultArea.style.display = "block";
+    }
+
+    // ✅ Butona sadece saveData fonksiyonu bağlandı
+    saveBtn.addEventListener("click", saveData);
+
+    toggleForm();
+  </script>
+</body>
+</html>

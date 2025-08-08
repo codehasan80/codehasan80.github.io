@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <title>Şehir Puan Listesi</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 30px;
+    }
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      margin-bottom: 40px;
+    }
+    th, td {
+      border: 1px solid #ccc;
+      padding: 8px;
+      text-align: left;
+    }
+    th {
+      background-color: #f2f2f2;
+    }
+    h2 {
+      margin-top: 40px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Şehirlere Göre Puan Listesi</h1>
+
+  <h2>Kadın</h2>
+  <div id="female-output"></div>
+
+  <h2>Erkek</h2>
+  <div id="male-output"></div>
+
+  <script>
+    function renderScores(data, outputDivId) {
+      const grouped = {};
+      data.forEach(entry => {
+        if (!grouped[entry.city]) grouped[entry.city] = [];
+        grouped[entry.city].push(entry);
+      });
+
+      const outputDiv = document.getElementById(outputDivId);
+
+      for (const city in grouped) {
+        const sortedEntries = grouped[city].sort((a, b) => {
+          return parseFloat(b.score.replace(",", ".")) - parseFloat(a.score.replace(",", "."));
+        });
+
+        let tableHTML = `
+          <h3>${city}</h3>
+          <table>
+            <tr>
+              <th>#</th>
+              <th>Kullanıcı</th>
+              <th>Puan</th>
+            </tr>
+        `;
+
+        sortedEntries.forEach((entry, index) => {
+          tableHTML += `
+            <tr>
+              <td>${index + 1}</td>
+              <td>${entry.username}</td>
+              <td>${entry.score}</td>
+            </tr>
+          `;
+        });
+
+        tableHTML += `</table>`;
+        outputDiv.innerHTML += tableHTML;
+      }
+    }
+
+    const femaleData = JSON.parse(localStorage.getItem("femaleScores")) || [];
+    const maleData = JSON.parse(localStorage.getItem("maleScores")) || [];
+
+    renderScores(femaleData, "female-output");
+    renderScores(maleData, "male-output");
+  </script>
+</body>
+</html>
