@@ -2,7 +2,8 @@
 <html lang="tr">
 <head>
   <meta charset="UTF-8" />
-  <title>Puan Girişi ve Sıralama</title>
+  <title>önlisans özel güvenlik tercih robotu</title>
+  
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&display=swap');
 
@@ -90,7 +91,9 @@
     #retry-btn:hover {
       background-color: #ccc;
     }
-
+   #onemli {
+        color: red;
+    }
     #result-area {
       margin-top: 30px;
       padding: 20px;
@@ -101,21 +104,29 @@
       line-height: 1.5;
       display: none;
     }
-
-    @media (max-width: 540px) {
-      .container {
-        padding: 25px 20px;
-      }
-      button {
-        font-size: 16px;
-        padding: 12px 0;
-      }
-    }
+@media (max-width: 540px) {
+  .container {
+    width: 100vw;
+    max-width: none;
+    padding: 10px 10px;
+    border-radius: 0; /* köşeleri de düzleştirebilirsin */
+  }
+  button {
+    font-size: 16px;
+    padding: 12px 0;
+  }
+}
   </style>
 </head>
 <body>
   <div class="container">
-    <h1>Puan ve Şehir Girişi</h1>
+    <h1>önlisans gsb güvenlik tercih robotu</h1>
+    <h5 id="onemli">
+        sistem sadece bir defa veri girişi yapmanıza izin verir!! sadece bir defa veri girişi yapabilirsiniz bu yüzden puanınızı ve cinsiyetinizi doğru girdiğinize kesinlikle emin olun. ayrıca hangi şehri istiyorsanız o şehri seçin
+    </h5  >
+    <h5 id="onemli"><b>UYARI</b> kesinlikle puanınızı <br />
+     cinsiyetinizi 
+      <br />ve istediğiniz şehri doğru girdiğinizden emin olun</h5>
 
     <div id="form-area">
       <label for="username">Kullanıcı Adı</label>
@@ -136,8 +147,8 @@
         <option value="Lisans">Lisans</option>
       </select>
 
-      <label for="score">Puan (örnek: 12,34567)</label>
-      <input type="text" id="score" placeholder="12,34567" required autocomplete="off" />
+      <label for="score">Kpss Puanı (örnek: 79,34567) not: virgülden sonraki beş basamağıda girin sadece virgül kullanın</label>
+      <input type="text" id="score" placeholder="79,34567" required autocomplete="off" />
 
       <label for="city">Şehir Seçin</label>
       <select id="city" required>
@@ -146,6 +157,7 @@
 
       <!-- ✅ Burada onclick kaldırıldı -->
       <button id="save-btn">Kaydet ve Listele</button>
+     
     </div>
 
     <button id="retry-btn">Başka arkadaşım için kayıt yapacağım</button>
@@ -153,189 +165,201 @@
     <div id="result-area"></div>
   </div>
 
-  <script>
-    const cities = [
-      "Adana","Adıyaman","Afyonkarahisar","Ağrı","Amasya","Ankara","Antalya","Artvin","Aydın","Balıkesir",
-      "Bilecik","Bingöl","Bitlis","Bolu","Burdur","Bursa","Çanakkale","Çankırı","Çorum","Denizli","Diyarbakır",
-      "Edirne","Elazığ","Erzincan","Erzurum","Eskişehir","Gaziantep","Giresun","Gümüşhane","Hakkari","Hatay",
-      "Isparta","Mersin","İstanbul","İzmir","Kars","Kastamonu","Kayseri","Kırklareli","Kırşehir","Kocaeli",
-      "Konya","Kütahya","Malatya","Manisa","Kahramanmaraş","Mardin","Muğla","Muş","Nevşehir","Niğde","Ordu",
-      "Rize","Sakarya","Samsun","Siirt","Sinop","Sivas","Tekirdağ","Tokat","Trabzon","Tunceli","Şanlıurfa",
-      "Uşak","Van","Yozgat","Zonguldak","Aksaray","Bayburt","Karaman","Kırıkkale","Batman","Şırnak","Bartın",
-      "Ardahan","Iğdır","Yalova","Karabük","Kilis","Osmaniye","Düzce"
-    ];
+<script type="module">
+    import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
+const supabaseUrl = 'https://meatgotukenyazmswpjb.supabase.co'
+const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1lYXRnb3R1a2VueWF6bXN3cGpiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ2NjgyMTcsImV4cCI6MjA3MDI0NDIxN30.Uy3U5-utN-QWvDuwW9ebqX7B7e1ylPU9Qr0T5CAIl1U'
+const supabase = createClient(supabaseUrl, supabaseKey)
 
-    const citySelect = document.getElementById("city");
-    const retryButton = document.getElementById("retry-btn");
-    const formArea = document.getElementById("form-area");
-    const saveBtn = document.getElementById("save-btn");
-    const resultArea = document.getElementById("result-area");
 
-    function populateCities() {
-      cities.forEach(city => {
-        const option = document.createElement("option");
-        option.value = city;
-        option.textContent = city;
-        citySelect.appendChild(option);
-      });
-    }
-    populateCities();
 
-    function hasUserSubmitted() {
-      return localStorage.getItem("hasSubmitted") === "true";
-    }
+  const cities = [
+    "Adana","Adıyaman","Afyonkarahisar","Ağrı","Amasya","Ankara","Antalya","Artvin","Aydın","Balıkesir",
+    "Bilecik","Bingöl","Bitlis","Bolu","Burdur","Bursa","Çanakkale","Çankırı","Çorum","Denizli","Diyarbakır",
+    "Edirne","Elazığ","Erzincan","Erzurum","Eskişehir","Gaziantep","Giresun","Gümüşhane","Hakkari","Hatay",
+    "Isparta","Mersin","İstanbul","İzmir","Kars","Kastamonu","Kayseri","Kırklareli","Kırşehir","Kocaeli",
+    "Konya","Kütahya","Malatya","Manisa","Kahramanmaraş","Mardin","Muğla","Muş","Nevşehir","Niğde","Ordu",
+    "Rize","Sakarya","Samsun","Siirt","Sinop","Sivas","Tekirdağ","Tokat","Trabzon","Tunceli","Şanlıurfa",
+    "Uşak","Van","Yozgat","Zonguldak","Aksaray","Bayburt","Karaman","Kırıkkale","Batman","Şırnak","Bartın",
+    "Ardahan","Iğdır","Yalova","Karabük","Kilis","Osmaniye","Düzce"
+  ];
 
-    function toggleForm() {
-      if (hasUserSubmitted()) {
-        formArea.style.display = "none";
-        retryButton.style.display = "block";
-        resultArea.style.display = "none";
-      } else {
-        formArea.style.display = "block";
-        retryButton.style.display = "none";
-        resultArea.style.display = "none";
-      }
-    }
+  const citySelect = document.getElementById("city");
+  const retryButton = document.getElementById("retry-btn");
+  const formArea = document.getElementById("form-area");
+  const saveBtn = document.getElementById("save-btn");
+  const resultArea = document.getElementById("result-area");
 
-    retryButton.addEventListener("click", () => {
-      localStorage.clear();
-      formArea.style.display = "block";
-      retryButton.style.display = "none";
-      resultArea.style.display = "none";
-
-      document.getElementById("username").value = "";
-      document.getElementById("gender").value = "";
-      document.getElementById("education").value = "";
-      document.getElementById("score").value = "";
-      document.getElementById("city").value = "";
+  function populateCities() {
+    cities.forEach(city => {
+      const option = document.createElement("option");
+      option.value = city;
+      option.textContent = city;
+      citySelect.appendChild(option);
     });
+  }
+  populateCities();
 
-    function saveData() {
-      const username = document.getElementById("username").value.trim();
-      const gender = document.getElementById("gender").value;
-      const educationInput = document.getElementById("education").value;
-      const scoreInput = document.getElementById("score").value.trim();
-      const cityInput = document.getElementById("city").value;
+  function parseScore(scoreStr) {
+    return parseFloat(scoreStr.replace(',', '.'));
+  }
 
-      const regex = /^\d{1,2},\d{1,5}$/;
+  async function userExists(username, gender) {
+    const { data, error } = await supabase
+      .from('users')
+      .select('*')
+      .eq('username', username)
+      .eq('gender', gender);
 
-      if (!username) {
-        alert("Lütfen adınızı girin.");
-        return;
-      }
+    if (error) {
+      console.error("Kullanıcı kontrol hatası:", error);
+      alert("Bir hata oluştu, lütfen sayfayı yenileyip tekrar deneyin.");
+      throw error;
+    }
 
-      if (!gender) {
-        alert("Lütfen cinsiyet seçin.");
-        return;
-      }
+    return data.length > 0;
+  }
 
-      if (!educationInput) {
-        alert("Lütfen eğitim durumunuzu seçin.");
-        return;
-      }
+  async function saveData() {
+    const username = document.getElementById("username").value.trim();
+    const gender = document.getElementById("gender").value;
+    const educationInput = document.getElementById("education").value;
+    const scoreInput = document.getElementById("score").value.trim();
+    const cityInput = document.getElementById("city").value;
 
-      if (educationInput !== "Önlisans") {
-        alert("Sadece Önlisans mezunları kayıt yapabilir.");
-        return;
-      }
+    const regex = /^\d{1,2},\d{1,5}$/;
 
-      if (!regex.test(scoreInput)) {
-        alert("Lütfen puanı doğru formatta girin: örnek 12,34567");
-        return;
-      }
+    if (!username) {
+      alert("Lütfen adınızı girin.");
+      return;
+    }
 
-      if (!cityInput) {
-        alert("Lütfen bir şehir seçin.");
-        return;
-      }
+    if (!gender) {
+      alert("Lütfen cinsiyet seçin.");
+      return;
+    }
 
-      const storageKey = gender === "Kadın" ? "femaleScores" : "maleScores";
-      const existingData = JSON.parse(localStorage.getItem(storageKey)) || [];
+    if (!educationInput) {
+      alert("Lütfen eğitim durumunuzu seçin.");
+      return;
+    }
 
-      const userHasSubmitted = existingData.some(entry => entry.username.toLowerCase() === username.toLowerCase());
-      if (userHasSubmitted) {
+    if (educationInput !== "Önlisans") {
+      alert("Sadece Önlisans mezunları kayıt yapabilir.");
+      return;
+    }
+
+    if (!regex.test(scoreInput)) {
+      alert("Lütfen puanı doğru formatta girin: örnek 12,34567");
+      return;
+    }
+
+    if (!cityInput) {
+      alert("Lütfen bir şehir seçin.");
+      return;
+    }
+
+    try {
+      // Aynı kullanıcı adı ve cinsiyet var mı kontrol et
+      const exists = await userExists(username, gender);
+      if (exists) {
         alert("Daha önce puan girişi yaptınız. Başka arkadaşınız için kayıt yapmak için 'Başka arkadaşım için kayıt yapacağım' butonuna basın.");
         return;
       }
 
-      const newEntry = {
-        username: username,
-        city: cityInput,
-        score: scoreInput,
-        scoreNum: parseFloat(scoreInput.replace(",", "."))
-      };
+      // Kayıt ekle
+      const { error: insertErr } = await supabase
+        .from('users')
+        .insert([{
+          username: username,
+          gender: gender,
+          education: educationInput,
+          city: cityInput,
+          score: parseScore(scoreInput)
+        }]);
 
-      existingData.push(newEntry);
-      localStorage.setItem(storageKey, JSON.stringify(existingData));
-
-      localStorage.setItem("lastGender", gender);
-      localStorage.setItem("lastCity", cityInput);
-      localStorage.setItem("lastScore", scoreInput);
-      localStorage.setItem("lastUsername", username);
-      localStorage.setItem("hasSubmitted", "true");
-
-      // Formu gizle, sonuç göster
-      formArea.style.display = "none";
-      retryButton.style.display = "block";
-      showLastResult();
-    }
-
-    function parseScore(scoreStr) {
-      return parseFloat(scoreStr.replace(',', '.'));
-    }
-
-    function calculateRank(arr, username) {
-      arr.sort((a, b) => {
-        if (b.scoreNum !== a.scoreNum) return b.scoreNum - a.scoreNum;
-        return a.username.localeCompare(b.username);
-      });
-
-      for (let i = 0; i < arr.length; i++) {
-        if (arr[i].username.toLowerCase() === username.toLowerCase()) {
-          return i + 1;
-        }
-      }
-      return -1;
-    }
-
-    function showLastResult() {
-      const lastGender = localStorage.getItem("lastGender");
-      const lastCity = localStorage.getItem("lastCity");
-      const lastScoreStr = localStorage.getItem("lastScore");
-      const lastUsername = localStorage.getItem("lastUsername");
-
-      if (!lastGender || !lastCity || !lastScoreStr || !lastUsername) {
-        resultArea.style.display = "none";
+      if (insertErr) {
+        console.error("Kayıt hatası:", insertErr);
+        alert("Kayıt yapılırken bir hata oluştu.");
         return;
       }
 
-      const storageKey = lastGender === "Kadın" ? "femaleScores" : "maleScores";
-      const data = JSON.parse(localStorage.getItem(storageKey)) || [];
+      // Sonuçları göster
+      await showLastResult(username, gender, cityInput);
 
-      const dataWithScoreNum = data.map(item => ({
-        ...item,
-        scoreNum: parseScore(item.score)
-      }));
+      // Formu gizle, retry butonunu göster
+      formArea.style.display = "none";
+      retryButton.style.display = "block";
 
-      const genelRank = calculateRank(dataWithScoreNum, lastUsername);
-      const cityFiltered = dataWithScoreNum.filter(item => item.city === lastCity);
-      const cityRank = calculateRank(cityFiltered, lastUsername);
+    } catch (error) {
+      console.error("saveData hata:", error);
+    }
+  }
+
+  async function calculateRank(users, username) {
+    users.sort((a, b) => {
+      if (b.score !== a.score) return b.score - a.score;
+      return a.username.localeCompare(b.username);
+    });
+
+    for (let i = 0; i < users.length; i++) {
+      if (users[i].username.toLowerCase() === username.toLowerCase()) {
+        return i + 1;
+      }
+    }
+    return -1;
+  }
+
+  async function showLastResult(username, gender, city) {
+    try {
+      // Tüm aynı cinsiyetteki kullanıcıları al
+      let { data: users, error } = await supabase
+        .from('users')
+        .select('username, score, city')
+        .eq('gender', gender);
+
+      if (error) throw error;
+
+      // Genel sıralama
+      const genelRank = await calculateRank(users, username);
+
+      // Şehir bazlı sıralama
+      const cityUsers = users.filter(u => u.city === city);
+      const cityRank = await calculateRank(cityUsers, username);
 
       resultArea.innerHTML = `
         <h2>Sonuçlar</h2>
-        <p><strong>${lastUsername}</strong> isimli kullanıcı için:</p>
+        <p><strong>${username}</strong> isimli kullanıcı için:</p>
         <ul>
-          <li><strong>Cinsiyetine göre genel sıralama:</strong> ${genelRank} / ${data.length}</li>
-          <li><strong>${lastCity} şehrindeki sıralama:</strong> ${cityRank} / ${cityFiltered.length}</li>
+          <li><strong>Cinsiyetine göre genel sıralama:</strong> ${genelRank} / ${users.length}</li>
+          <li><strong>${city} şehrindeki sıralama:</strong> ${cityRank} / ${cityUsers.length}</li>
         </ul>
       `;
       resultArea.style.display = "block";
+
+    } catch (err) {
+      console.error("Sonuç gösterme hatası:", err);
+      alert("Sonuçlar gösterilirken bir hata oluştu.");
     }
+  }
 
-    // ✅ Butona sadece saveData fonksiyonu bağlandı
-    saveBtn.addEventListener("click", saveData);
+  retryButton.addEventListener("click", () => {
+    formArea.style.display = "block";
+    retryButton.style.display = "none";
+    resultArea.style.display = "none";
 
-    toggleForm();
-  </script>
+    document.getElementById("username").value = "";
+    document.getElementById("gender").value = "";
+    document.getElementById("education").value = "";
+    document.getElementById("score").value = "";
+    document.getElementById("city").value = "";
+  });
+
+  saveBtn.addEventListener("click", saveData);
+</script>
+
+
+
+
 </body>
 </html>

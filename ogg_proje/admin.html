@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="tr">
 <head>
@@ -132,3 +133,27 @@
   </script>
 </body>
 </html>
+
+<button id="save-btn">Kaydet</button>
+
+
+<script type="module">
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
+const supabaseUrl = 'https://meatgotukenyazmswpjb.supabase.co'
+const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1lYXRnb3R1a2VueWF6bXN3cGpiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ2NjgyMTcsImV4cCI6MjA3MDI0NDIxN30.Uy3U5-utN-QWvDuwW9ebqX7B7e1ylPU9Qr0T5CAIl1U'
+const supabase = createClient(supabaseUrl, supabaseKey)
+
+  document.getElementById("save-btn").addEventListener("click", async () => {
+    try {
+      console.log("Butona basıldı!");
+      // Örnek sorgu
+      const { data, error } = await supabase.from("users").select("*").limit(1);
+      if(error) throw error;
+      console.log("Data geldi:", data);
+      alert("Sorgu başarılı!");
+    } catch(e) {
+      console.error("Hata:", e);
+      alert("Bir hata oluştu.");
+    }
+  });
+</script>
