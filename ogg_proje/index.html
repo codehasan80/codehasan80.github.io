@@ -154,6 +154,12 @@
       <select id="city" required>
         <option value="">-- Şehir Seçin --</option>
       </select>
+<div style="margin-top: 20px;">
+  <input type="checkbox" id="kvkk-checkbox" required />
+  <label for="kvkk-checkbox" style="font-size: 14px;">
+    <a href="#" onclick="alert(kvkkText); return false;">KVKK ve Açık Rıza Metni'ni</a> okudum, anladım ve kabul ediyorum.
+  </label>
+</div>
 
       <!-- ✅ Burada onclick kaldırıldı -->
       <button id="save-btn">Kaydet ve Listele</button>
@@ -170,6 +176,11 @@
 const supabaseUrl = 'https://meatgotukenyazmswpjb.supabase.co'
 const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1lYXRnb3R1a2VueWF6bXN3cGpiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ2NjgyMTcsImV4cCI6MjA3MDI0NDIxN30.Uy3U5-utN-QWvDuwW9ebqX7B7e1ylPU9Qr0T5CAIl1U'
 const supabase = createClient(supabaseUrl, supabaseKey)
+ window.kvkkText = `6698 sayılı Kişisel Verilerin Korunması Kanunu (KVKK) kapsamında, tarafınızca sağlanan kişisel veriler; yalnızca istatistiksel analiz ve sıralama amacıyla kullanılacak, üçüncü kişilerle paylaşılmayacaktır.
+
+Tarafınıza ait veriler, yalnızca tarafınızın açık rızası ile alınmakta ve sadece bu sistem içerisinde kullanılmaktadır.
+
+Bu verilerin kaydedilmesi, işlenmesi ve sıralama amaçlı analizlerde kullanılması hususunda bilgilendirildim ve açık rıza gösteriyorum.`;
 
 
 
@@ -226,7 +237,7 @@ const supabase = createClient(supabaseUrl, supabaseKey)
     const educationInput = document.getElementById("education").value;
     const scoreInput = document.getElementById("score").value.trim();
     const cityInput = document.getElementById("city").value;
-
+    const isChecked = document.getElementById("kvkk-checkbox").checked;
     const regex = /^\d{1,2},\d{1,5}$/;
 
     if (!username) {
@@ -259,6 +270,11 @@ const supabase = createClient(supabaseUrl, supabaseKey)
       return;
     }
 
+    if (!isChecked) {
+      alert("Lütfen KVKK ve Açık Rıza Metni'ni okuyup onaylayın.");
+      return;
+    }
+
     try {
       // Aynı kullanıcı adı ve cinsiyet var mı kontrol et
       const exists = await userExists(username, gender);
@@ -275,12 +291,13 @@ const supabase = createClient(supabaseUrl, supabaseKey)
           gender: gender,
           education: educationInput,
           city: cityInput,
-          score: parseScore(scoreInput)
+          score: parseScore(scoreInput),
+          isChecked: isChecked
         }]);
 
       if (insertErr) {
         console.error("Kayıt hatası:", insertErr);
-        alert("Kayıt yapılırken bir hata oluştu.");
+        alert("Kayıt yapılırken bir hata oluştu."  + insertErr.message);
         return;
       }
 
@@ -294,6 +311,10 @@ const supabase = createClient(supabaseUrl, supabaseKey)
     } catch (error) {
       console.error("saveData hata:", error);
     }
+
+   
+
+
   }
 
   async function calculateRank(users, username) {
