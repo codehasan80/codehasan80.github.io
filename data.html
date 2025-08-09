@@ -2,7 +2,7 @@
 <html lang="tr">
 <head>
   <meta charset="UTF-8" />
-  <title>Admin Paneli – Supabase Listeleme</title>
+  <title>Supabase Listeleme</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -10,11 +10,6 @@
       max-width: 800px;
       background: #f9f9f9;
       padding: 20px;
-    }
-    input, button {
-      padding: 10px;
-      font-size: 16px;
-      margin: 5px 0;
     }
     table {
       width: 100%;
@@ -38,22 +33,35 @@
       font-size: 18px;
       color: #444;
     }
+
+    button {
+      margin-top: 28px;
+      width: 100%;
+      background-color: #4a90e2;
+      color: white;
+      border: none;
+      padding: 15px 0;
+      font-size: 18px;
+      font-weight: 600;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+    button:hover {
+      background-color: #357ABD;
+    }
   </style>
 </head>
 <body>
-  <h1>Admin Paneli – Kullanıcı Sıralamaları</h1>
 
-  <!-- Admin Giriş -->
-  <div id="admin-login">
-    <input type="password" id="admin-password" placeholder="Admin şifresi" />
-    <button id="admin-btn">Giriş Yap</button>
-  </div>
+  <button onclick="window.location.href='index.html'">Veri girişi sayfasına dön</button>
+  <h1>Kullanıcı Sıralamaları</h1>
+
+  <!-- Veriyi Getir Butonu -->
+  <button id="fetch-btn">Verileri Getir</button>
 
   <!-- Veri Gösterme Alanı -->
-  <div id="admin-section" style="display:none;">
-    <button id="fetch-btn">Verileri Getir</button>
-    <div id="result-area"></div>
-  </div>
+  <div id="result-area"></div>
 
   <script type="module">
     import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
@@ -63,22 +71,11 @@
     const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1lYXRnb3R1a2VueWF6bXN3cGpiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ2NjgyMTcsImV4cCI6MjA3MDI0NDIxN30.Uy3U5-utN-QWvDuwW9ebqX7B7e1ylPU9Qr0T5CAIl1U';
     const supabase = createClient(supabaseUrl, supabaseKey);
 
-    // Admin şifre kontrol
-    document.getElementById("admin-btn").addEventListener("click", () => {
-      const pw = document.getElementById("admin-password").value;
-      if (pw === "172149") {
-        document.getElementById("admin-login").style.display = "none";
-        document.getElementById("admin-section").style.display = "block";
-      } else {
-        alert("Hatalı şifre!");
-      }
-    });
-
     // Verileri çek ve listele
     document.getElementById("fetch-btn").addEventListener("click", async () => {
       const { data, error } = await supabase
         .from('users')
-        .select('username, gender, city, score')
+        .select('username, gender, city')
         .order('score', { ascending: false });
 
       if (error) {
@@ -110,19 +107,23 @@
           container.innerHTML += `<h3>${city}</h3>`;
           container.innerHTML += `
             <table>
-              <tr><th>Sıra</th><th>Kullanıcı Adı</th><th>Puan</th></tr>
-              ${list.map((user, i) => `
-                <tr>
-                  <td>${i + 1}</td>
-                  <td>${user.username}</td>
-                  <td>${user.score}</td>
-                </tr>
-              `).join("")}
+              <tr><th>Sıra</th><th>Kullanıcı Adı</th></tr>
+              ${list.map((user, i) => {
+                // Kullanıcı adı ilk boşluktan önceye kadar
+                const username = user.username.split(' ')[0];
+                return `
+                  <tr>
+                    <td>${i + 1}</td>
+                    <td>${username}</td>
+                  </tr>
+                `;
+              }).join("")}
             </table>
           `;
         }
       });
     });
   </script>
+
 </body>
 </html>
